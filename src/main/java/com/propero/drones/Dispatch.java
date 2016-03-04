@@ -5,5 +5,7 @@ package com.propero.drones;
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public class Dispatch {
+public final class Dispatch {
+
+    //TODO
 }

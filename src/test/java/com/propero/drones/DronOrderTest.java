@@ -5,8 +5,8 @@ import org.junit.Test;
 
 import java.text.ParseException;
 
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Created by IntelliJ IDEA.<br/>
@@ -16,12 +16,12 @@ import static org.junit.Assert.assertNull;
 public class DronOrderTest {
 
     @Test
-    public void newCoordinatesOObject() {
+    public void newDronOrderAsPojoObject() {
         assertEquals(123, new DronOrder(123).getPid());
     }
 
     @Test
-    public void coordinatesAsPojo() throws ParseException {
+    public void dronOrderAsPojo() throws ParseException {
         int pid = 123;
         DronOrder coordinates = new DronOrder(pid);
 

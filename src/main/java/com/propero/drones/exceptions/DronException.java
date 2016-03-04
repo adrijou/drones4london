@@ -5,5 +5,10 @@ package com.propero.drones.exceptions;
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public class DronException {
+public abstract class DronException extends Exception {
+
+    public DronException(final String nameFile) {
+        super("Exception in drones4london was found");
+    }
+
 }
