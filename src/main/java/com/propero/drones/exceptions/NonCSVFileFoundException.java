@@ -8,7 +8,6 @@ package com.propero.drones.exceptions;
 public final class NonCSVFileFoundException extends DronException {
 
     public NonCSVFileFoundException(final String nameFile) {
-        super("The CSV file " + nameFile
-                + " was not found in the defined path");
+        super(nameFile + " was not found in the defined path");
     }
 }

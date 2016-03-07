@@ -1,7 +1,7 @@
 package com.propero.drones.utils;
 
 import com.propero.drones.exceptions.NonCSVFileFoundException;
-import com.propero.drones.exceptions.UnsupportedCSVFileExceptionImpl;
+import com.propero.drones.exceptions.UnsupportedCSVFileException;
 import com.propero.drones.pojo.TubeStation;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class CsvTubeStationsTest {
 
     @Test
     public void tubeListFromCSVFile()
-            throws NonCSVFileFoundException, UnsupportedCSVFileExceptionImpl {
+            throws NonCSVFileFoundException, UnsupportedCSVFileException {
 
         String tubeNameFile = "tubeStationsExample.csv";
 
@@ -43,9 +43,22 @@ public class CsvTubeStationsTest {
                 .getLatitude(), DELTA));
     }
 
+    @Test(expected = UnsupportedCSVFileException.class)
+    public void tubeListFromCSVSetStringInsteadOfDouble()
+            throws FileNotFoundException, NonCSVFileFoundException,
+            UnsupportedCSVFileException {
+
+        String tubeStation = "mockFile.csv";
+        updateFile(tubeStation, "\"Vauxhall\",\"51.484833\"\n");
+
+        List<TubeStation> stationList
+                = CsvTubeStations.newInstance()
+                .getTubeStationFromCSV(tubeStation);
+    }
+
     @Test(expected = NonCSVFileFoundException.class)
     public void CsvTubeStationsFileDoesNotExists()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException {
+            throws UnsupportedCSVFileException, NonCSVFileFoundException {
 
         String noCSVwithName = "doesNotExists.csv";
 
@@ -54,9 +67,10 @@ public class CsvTubeStationsTest {
                 .getTubeStationFromCSV(noCSVwithName);
     }
 
-    @Test(expected = UnsupportedCSVFileExceptionImpl.class)
+
+    @Test(expected = UnsupportedCSVFileException.class)
     public void tubeStationsFileListContainWrongParameters()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException {
+            throws UnsupportedCSVFileException, NonCSVFileFoundException {
 
         String tubeStation = "tubeStationsError.csv";
 
@@ -66,9 +80,9 @@ public class CsvTubeStationsTest {
 
     }
 
-    @Test(expected = UnsupportedCSVFileExceptionImpl.class)
+    @Test(expected = UnsupportedCSVFileException.class)
     public void tubeStationsFileListContainWrongFormatFile()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException,
+            throws UnsupportedCSVFileException, NonCSVFileFoundException,
                    FileNotFoundException, URISyntaxException {
 
         String tubeStation = "mockFile.csv";
@@ -79,9 +93,9 @@ public class CsvTubeStationsTest {
                 .getTubeStationFromCSV(tubeStation);
     }
 
-    @Test(expected = UnsupportedCSVFileExceptionImpl.class)
+    @Test(expected = UnsupportedCSVFileException.class)
     public void tubeStationsFileListContainWrongFormatFileSeparator()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException,
+            throws UnsupportedCSVFileException, NonCSVFileFoundException,
             FileNotFoundException, URISyntaxException {
 
         String tubeStation = "mockFile.csv";

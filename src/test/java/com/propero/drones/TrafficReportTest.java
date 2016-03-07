@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -20,21 +21,32 @@ public class TrafficReportTest {
 
     @Test
     public void trafficReportAsPojo() {
-        TrafficReport trafficReport = new TrafficReport();
+
+        int pid = 123;
         Timestamp time =Timestamp.valueOf("2016-03-03 23:30:10.0");
 
-        trafficReport.setDronID(123);
-        trafficReport.setSpeed(12.50);
+        TrafficReport trafficReport = new TrafficReport(pid, time);
 
-        trafficReport.setTimeStamp(time);
-        trafficReport.setTrafficConditions(TrafficReport.
-                                        TrafficConditions.MODERATE);
+        trafficReport.setSpeed(12.50);
+        trafficReport.setTrafficConditions(
+                TrafficReport.TrafficConditions.MODERATE);
 
         assertEquals(123, trafficReport.getDronID());
         assertThat(12.50, closeTo(trafficReport.getSpeed(), DELTA));
         assertEquals(time, trafficReport.getTimeStamp());
         assertEquals(TrafficReport.TrafficConditions.MODERATE,
                 trafficReport.getTrafficConditions());
+    }
+
+    @Test
+    public void trafficReportRandom() {
+        int pid = 123;
+        Timestamp time =Timestamp.valueOf("2016-03-03 23:30:10.0");
+
+        TrafficReport tr = new TrafficReport(pid, time);
+
+        assertNotNull(tr.getTrafficConditions());
+
     }
 
 

@@ -1,16 +1,17 @@
 package com.propero.drones.pojo;
 
+
+import java.sql.Timestamp;
+
 /**
  * Created by IntelliJ IDEA.<br/>
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public final class DronOrder {
+public final class DronOrder extends Coordinates {
 
     private int pid;
-    private String latitude;
-    private String longitude;
-    private String time;
+    private Timestamp time;
 
     public DronOrder(final int pid) {
         this.pid = pid;
@@ -20,27 +21,31 @@ public final class DronOrder {
         return pid;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(final String time) {
+    public void setTime(final Timestamp time) {
         this.time = time;
     }
+
+    public double getLongitude() {
+        return super.getLongitude();
+    }
+
+    public void setLongitude(final double longitude) {
+        super.setLongitude(longitude);
+    }
+
+
+    public double getLatitude() {
+        return super.getLatitude();
+    }
+
+    public void setLatitude(final double latitude) {
+        super.setLatitude(latitude);
+    }
+
+
+
 }

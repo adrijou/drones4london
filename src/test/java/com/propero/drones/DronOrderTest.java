@@ -3,10 +3,12 @@ package com.propero.drones;
 import com.propero.drones.pojo.DronOrder;
 import org.junit.Test;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 
-import static junit.framework.TestCase.assertNull;
+import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by IntelliJ IDEA.<br/>
@@ -14,6 +16,8 @@ import static org.junit.Assert.assertEquals;
  * Date: 03/03/16<br/>
  */
 public class DronOrderTest {
+
+    private static final double DELTA = 1e-15;
 
     @Test
     public void newDronOrderAsPojoObject() {
@@ -25,35 +29,19 @@ public class DronOrderTest {
         int pid = 123;
         DronOrder coordinates = new DronOrder(pid);
 
-        coordinates.setLongitude("-0.100224");
-        coordinates.setLatitude("51.476105");
+        coordinates.setLatitude(51.476105);
+        coordinates.setLongitude(-0.100224);
 
-        String ts = "2016-03-02 20:01:10";
+        String ts = "2016-03-02 20:01:10.0";
 
-        coordinates.setTime(ts);
+        coordinates.setTime(Timestamp.valueOf(ts));
 
         assertEquals(123, coordinates.getPid());
-        assertEquals("-0.100224", coordinates.getLongitude());
-        assertEquals("51.476105", coordinates.getLatitude());
-        assertEquals("2016-03-02 20:01:10", coordinates.getTime());
-    }
+        assertThat(51.476105, closeTo(coordinates.getLatitude(), DELTA));
+        assertThat(-0.100224, closeTo(coordinates.getLongitude(), DELTA));
 
-    @Test
-    public void coordinatesLongitudeAsDouble() {
-        //TODO
-        assertNull(null);
-    }
-
-    @Test
-    public void coordinatesLatitudeAsDouble() {
-        //TODO
-        assertNull(null);
-    }
-
-    @Test
-    public void coordinatesTimeAsTimestamp() {
-        //TODO
-        assertNull(null);
+        assertEquals(Timestamp.valueOf(ts), coordinates.getTime());
+        assertEquals(ts, coordinates.getTime().toString());
     }
 
 }

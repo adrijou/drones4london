@@ -1,7 +1,7 @@
 package com.propero.drones.utils;
 
 import com.propero.drones.exceptions.NonCSVFileFoundException;
-import com.propero.drones.exceptions.UnsupportedCSVFileExceptionImpl;
+import com.propero.drones.exceptions.UnsupportedCSVFileException;
 import com.propero.drones.pojo.TubeStation;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -22,19 +22,24 @@ import java.util.List;
  */
 public final class CsvTubeStations {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(CsvTubeStations.class);
+    private static final Logger LOG
+            = LoggerFactory.getLogger(CsvTubeStations.class);
+    private static CsvTubeStations instance = null;
+
 
     private CsvTubeStations() {
     }
 
 
     public static CsvTubeStations newInstance() {
-        return new CsvTubeStations();
+        if (instance == null) {
+            instance = new CsvTubeStations();
+        }
+        return instance;
     }
 
     public List<TubeStation> getTubeStationFromCSV(final String nameFile)
-            throws NonCSVFileFoundException, UnsupportedCSVFileExceptionImpl {
+            throws NonCSVFileFoundException, UnsupportedCSVFileException {
         CSVReader reader = null;
         List<TubeStation> tubeStationList = new ArrayList<TubeStation>();
         TubeStation tubeStation;
@@ -65,9 +70,9 @@ public final class CsvTubeStations {
         } catch (NonCSVFileFoundException ex) {
             throw new NonCSVFileFoundException(nameFile);
         } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new UnsupportedCSVFileExceptionImpl(nameFile);
+            throw new UnsupportedCSVFileException(nameFile);
         } catch (NumberFormatException nfe) {
-            throw new UnsupportedCSVFileExceptionImpl(nameFile, nfe.toString());
+            throw new UnsupportedCSVFileException(nameFile, nfe.toString());
         } finally {
             try {
                 if (reader != null) {

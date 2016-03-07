@@ -8,7 +8,7 @@ package com.propero.drones.exceptions;
 public abstract class DronException extends Exception {
 
     public DronException(final String nameFile) {
-        super("Exception in drones4london was found");
+        super("Exception in drones4london was found: " + nameFile);
     }
 
 }

@@ -2,7 +2,7 @@ package com.propero.drones.utils;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.propero.drones.exceptions.NonCSVFileFoundException;
-import com.propero.drones.exceptions.UnsupportedCSVFileExceptionImpl;
+import com.propero.drones.exceptions.UnsupportedCSVFileException;
 import com.propero.drones.pojo.DronOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
  */
 public final class CsvDronOrders {
 
+    private static CsvDronOrders instance = null;
     private static final Logger LOG =
             LoggerFactory.getLogger(CsvDronOrders.class);
     private static final int THREE = 3;
@@ -30,11 +32,14 @@ public final class CsvDronOrders {
     }
 
     public static CsvDronOrders newInstance() {
-        return new CsvDronOrders();
+        if (instance == null) {
+            instance = new CsvDronOrders();
+        }
+        return instance;
     }
 
     public List<DronOrder> getDronCoordinatesFromCSV(final int pid)
-            throws NonCSVFileFoundException, UnsupportedCSVFileExceptionImpl {
+            throws NonCSVFileFoundException, UnsupportedCSVFileException {
 
         LOG.debug("_Accessing to csv of dron order coordinates named ",
                 pid + "csv");
@@ -61,9 +66,9 @@ public final class CsvDronOrders {
                     + "Iterating over the list of coordinates");
             while ((nextLine = reader.readNext()) != null) {
                 dronOrder = new DronOrder(Integer.parseInt(nextLine[0]));
-                dronOrder.setLongitude(nextLine[1]);
-                dronOrder.setLatitude(nextLine[2]);
-                dronOrder.setTime(nextLine[THREE]);
+                dronOrder.setLongitude(Double.parseDouble(nextLine[1]));
+                dronOrder.setLatitude(Double.parseDouble(nextLine[2]));
+                dronOrder.setTime(Timestamp.valueOf(nextLine[THREE]));
 
                 dronOrdersList.add(dronOrder);
             }
@@ -72,7 +77,9 @@ public final class CsvDronOrders {
         } catch (NonCSVFileFoundException ex) {
             throw new NonCSVFileFoundException(nameFile);
         } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new UnsupportedCSVFileExceptionImpl(nameFile);
+            throw new UnsupportedCSVFileException(nameFile);
+        } catch (NumberFormatException nfe) {
+            throw new UnsupportedCSVFileException(nameFile, nfe.toString());
         } finally {
             try {
                 if (reader != null) {

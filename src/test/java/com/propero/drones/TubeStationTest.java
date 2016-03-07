@@ -21,12 +21,12 @@ public class TubeStationTest {
         TubeStation coordinatesTube = new TubeStation();
 
         coordinatesTube.setTubeName("Victoria");
-        coordinatesTube.setLongitude(51.496424);
-        coordinatesTube.setLatitude(-0.143921);
+        coordinatesTube.setLatitude(51.496424);
+        coordinatesTube.setLongitude(-0.143921);
 
         assertEquals("Victoria", coordinatesTube.getTubeName());
-        assertThat(51.496424, closeTo(coordinatesTube.getLongitude(), DELTA));
-        assertThat(-0.143921, closeTo(coordinatesTube.getLatitude(), DELTA));
+        assertThat(51.496424, closeTo(coordinatesTube.getLatitude(), DELTA));
+        assertThat(-0.143921, closeTo(coordinatesTube.getLongitude(), DELTA));
     }
 
 }

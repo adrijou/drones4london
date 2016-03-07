@@ -1,17 +1,21 @@
 package com.propero.drones.utils;
 
 import com.propero.drones.exceptions.NonCSVFileFoundException;
-import com.propero.drones.exceptions.UnsupportedCSVFileExceptionImpl;
+import com.propero.drones.exceptions.UnsupportedCSVFileException;
 import com.propero.drones.pojo.DronOrder;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.number.IsCloseTo.closeTo;
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.<br/>
@@ -19,6 +23,9 @@ import static org.junit.Assert.assertNotNull;
  * Date: 03/03/16<br/>
  */
 public class CsvDronOrdersTest {
+
+    private static final double DELTA = 1e-15;
+
 
     @Test
     public void readingTestResourceFile() throws IOException {
@@ -29,7 +36,7 @@ public class CsvDronOrdersTest {
 
     @Test
     public void coordinatesDronListFromCSVFile()
-            throws NonCSVFileFoundException, UnsupportedCSVFileExceptionImpl {
+            throws NonCSVFileFoundException, UnsupportedCSVFileException {
 
         int pid = 123;
 
@@ -39,30 +46,59 @@ public class CsvDronOrdersTest {
         assertEquals(2, listCoordinatesTest.size());
         assertEquals(123, listCoordinatesTest.get(0).getPid());
         assertEquals(123, listCoordinatesTest.get(1).getPid());
-        assertEquals("51.476105",listCoordinatesTest.get(0).getLongitude());
-        assertEquals("-0.100224", listCoordinatesTest.get(0).getLatitude());
-        assertEquals("2011-03-22 07:55:26", listCoordinatesTest.get(0).getTime());
+        assertThat(51.476105,
+                closeTo(listCoordinatesTest.get(0).getLongitude(), DELTA));
+        assertThat(-0.100224,
+                closeTo(listCoordinatesTest.get(0).getLatitude(), DELTA));
+        assertEquals(Timestamp.valueOf("2011-03-22 07:55:26"),
+                listCoordinatesTest.get(0).getTime());
     }
 
 
     @Test(expected = NonCSVFileFoundException.class)
     public void dronOrdersListCSVFileNotGiven()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException {
+            throws UnsupportedCSVFileException, NonCSVFileFoundException {
         int pid = 100;
 
         List<DronOrder> listDronOrders
                 = CsvDronOrders.newInstance().getDronCoordinatesFromCSV(pid);
     }
 
-    @Test(expected = UnsupportedCSVFileExceptionImpl.class)
+    @Test(expected = UnsupportedCSVFileException.class)
     public void dronOrderListCSVContainWrongParameters()
-            throws UnsupportedCSVFileExceptionImpl, NonCSVFileFoundException {
+            throws UnsupportedCSVFileException, NonCSVFileFoundException {
         int pid = 666;
 
         List<DronOrder> listDronOrders
                 = CsvDronOrders.newInstance().getDronCoordinatesFromCSV(pid);
     }
 
+
+    @Test(expected = UnsupportedCSVFileException.class)
+    public void dronOrdersFileListContainWrongFormatFile()
+            throws UnsupportedCSVFileException, NonCSVFileFoundException,
+            FileNotFoundException, URISyntaxException {
+
+        int dronOrderFile = 999;
+        updateFile(Integer.toString(dronOrderFile)+".csv", "\"Vauxhall\",,,,\"51.484833\"\n");
+
+        List<DronOrder> dronList
+                = CsvDronOrders.newInstance()
+                .getDronCoordinatesFromCSV(dronOrderFile);
+    }
+
+    @Test(expected = UnsupportedCSVFileException.class)
+    public void tubeStationsFileListContainWrongFormatFileSeparator()
+            throws UnsupportedCSVFileException, NonCSVFileFoundException,
+            FileNotFoundException, URISyntaxException {
+
+        int dronOrderFile = 999;
+        updateFile(Integer.toString(dronOrderFile)+".csv", "\"Vauxhall\":\"51.484833\"\n");
+
+        List<DronOrder> dronOrderList
+                = CsvDronOrders.newInstance()
+                .getDronCoordinatesFromCSV(dronOrderFile);
+    }
 
     private String getFile(String fileName){
 

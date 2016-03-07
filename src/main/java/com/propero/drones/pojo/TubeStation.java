@@ -5,28 +5,9 @@ package com.propero.drones.pojo;
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public class TubeStation {
+public final class TubeStation extends Coordinates {
 
     private String tubeName;
-    private Double longitude;
-    private Double latitude;
-
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(final Double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(final Double latitude) {
-        this.latitude = latitude;
-    }
 
     public String getTubeName() {
         return tubeName;
@@ -35,6 +16,24 @@ public class TubeStation {
     public void setTubeName(final String tubeName) {
         this.tubeName = tubeName;
     }
+
+    public double getLongitude() {
+        return super.getLongitude();
+    }
+
+    public void setLongitude(final double longitude) {
+        super.setLongitude(longitude);
+    }
+
+
+    public double getLatitude() {
+        return super.getLatitude();
+    }
+
+    public void setLatitude(final double latitude) {
+        super.setLatitude(latitude);
+    }
+
 
 
 }
