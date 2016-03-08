@@ -38,9 +38,9 @@ public class CsvTubeStationsTest {
         assertEquals(2, tubeStationList.size());
         assertEquals("Vauxhall", tubeStationList.get(0).getTubeName());
         assertThat(51.484833, closeTo(tubeStationList.get(0)
-                                .getLongitude(), DELTA));
+                                .getLatitude(), DELTA));
         assertThat(-0.126416, closeTo(tubeStationList.get(0)
-                .getLatitude(), DELTA));
+                .getLongitude(), DELTA));
     }
 
     @Test(expected = UnsupportedCSVFileException.class)

@@ -60,13 +60,13 @@ public final class CsvTubeStations {
             while ((nextLine = reader.readNext()) != null) {
                 tubeStation = new TubeStation();
                 tubeStation.setTubeName(nextLine[0]);
-                tubeStation.setLongitude(Double.parseDouble(nextLine[1]));
-                tubeStation.setLatitude(Double.parseDouble(nextLine[2]));
+                tubeStation.setLatitude(Double.parseDouble(nextLine[1]));
+                tubeStation.setLongitude(Double.parseDouble(nextLine[2]));
 
                 tubeStationList.add(tubeStation);
             }
         } catch (IOException e) {
-            LOG.info("Error reading file" + e.getMessage());
+            LOG.debug("Error reading file" + e.getMessage());
         } catch (NonCSVFileFoundException ex) {
             throw new NonCSVFileFoundException(nameFile);
         } catch (ArrayIndexOutOfBoundsException ex) {

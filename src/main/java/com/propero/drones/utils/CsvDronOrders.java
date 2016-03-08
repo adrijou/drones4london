@@ -1,6 +1,7 @@
 package com.propero.drones.utils;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.propero.drones.constants.Constants;
 import com.propero.drones.exceptions.NonCSVFileFoundException;
 import com.propero.drones.exceptions.UnsupportedCSVFileException;
 import com.propero.drones.pojo.DronOrder;
@@ -25,7 +26,6 @@ public final class CsvDronOrders {
     private static CsvDronOrders instance = null;
     private static final Logger LOG =
             LoggerFactory.getLogger(CsvDronOrders.class);
-    private static final int THREE = 3;
 
 
     private CsvDronOrders() {
@@ -66,14 +66,15 @@ public final class CsvDronOrders {
                     + "Iterating over the list of coordinates");
             while ((nextLine = reader.readNext()) != null) {
                 dronOrder = new DronOrder(Integer.parseInt(nextLine[0]));
-                dronOrder.setLongitude(Double.parseDouble(nextLine[1]));
-                dronOrder.setLatitude(Double.parseDouble(nextLine[2]));
-                dronOrder.setTime(Timestamp.valueOf(nextLine[THREE]));
+                dronOrder.setLatitude(Double.parseDouble(nextLine[1]));
+                dronOrder.setLongitude(Double.parseDouble(nextLine[2]));
+                dronOrder.setTime(Timestamp.valueOf(
+                        nextLine[Constants.THREE]).getTime());
 
                 dronOrdersList.add(dronOrder);
             }
         } catch (IOException e) {
-            LOG.info("Error reading file" + e.getMessage());
+            LOG.debug("Error reading file" + e.getMessage());
         } catch (NonCSVFileFoundException ex) {
             throw new NonCSVFileFoundException(nameFile);
         } catch (ArrayIndexOutOfBoundsException ex) {

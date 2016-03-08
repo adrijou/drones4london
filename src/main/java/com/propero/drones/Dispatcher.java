@@ -9,19 +9,21 @@ import com.propero.drones.utils.CsvDronOrders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-
+import java.util.Iterator;
+import java.util.Timer;
 
 /**
  * Created by IntelliJ IDEA.<br/>
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public final class Dispatcher {
+public final class Dispatcher extends Thread {
 
     private static final Logger LOG
             = LoggerFactory.getLogger(Dispatcher.class);
@@ -29,15 +31,21 @@ public final class Dispatcher {
     private Map dronCsvOrderList;
 
     private Map dronesList = new HashMap();
+    private SimpleDateFormat sdf;
 
-    public Dispatcher() {
+    public Dispatcher() throws ParseException {
         dronCsvOrderList = new HashMap<Integer, List<DronOrder>>();
+        //Starting time
+        sdf = new java.text.SimpleDateFormat("HH:mm");
+        sdf.parse("07:45");
+
     }
 
-    public synchronized void addDron(final Dron dron)
+    public void addDron(final Dron dron)
             throws DuplicateDronPIDException {
 
         if (dronesList.containsKey(dron.getPid())) {
+            LOG.debug("trying to insert an existing pid dron");
           throw new DuplicateDronPIDException(dron.getPid());
         }
         dronesList.put(dron.getPid(), dron);
@@ -60,9 +68,9 @@ public final class Dispatcher {
      * If there is no reports in the queue,
      * falls in sleep until notified by dispatchMessage method.
      */
-    public synchronized void printTrafficReportFromDron(
+    public void printTrafficReportFromDron(
                                             final TrafficReport trafficReport) {
-        LOG.debug("Printing traffic report from dron "
+        LOG.info("Printing traffic report from dron "
                 + trafficReport.getDronID());
         LOG.info("Traffic report: " + trafficReport.toString());
     }
@@ -74,10 +82,12 @@ public final class Dispatcher {
      * @param pid
      * @param dronOrderList
      */
-    public synchronized void sendDronOrders(final int pid,
-                                    final List<DronOrder> dronOrderList) {
+    public void sendDronOrders(final int pid,
+                                    final List<DronOrder> dronOrderList)
+            throws InterruptedException {
         for (DronOrder dronOrder : dronOrderList) {
-            ((Dron) dronesList.get(pid)).getDronOrdersQueue().put(dronOrder);
+            ((Dron) dronesList.get(pid)).getDronOrdersQueue()
+                            .enqueue(dronOrder);
         }
     }
 
@@ -86,14 +96,14 @@ public final class Dispatcher {
      *  exception happens with the dron.
      * @param dronPid
      */
-    public synchronized void deleteDron(final int dronPid) {
+    public void deleteDron(final int dronPid) {
         dronesList.remove(dronPid);
     }
 
     /**
-     * Generate a signal to stop all dron threads
+     * Generate a signal to stop all dron threads by using interrupt method
      */
-    public synchronized void stopAllDrones() {
+    public void stopAllDrones() {
         Iterator entries = dronesList.values().iterator();
         while (entries.hasNext()) {
             Dron dron = (Dron) entries.next();
@@ -102,42 +112,37 @@ public final class Dispatcher {
         dronesList.clear();
     }
 
-
-  /*  public synchronized void addOrderList2Dron(final int pid,
-                                     final List<DronOrder> dronOrderList) {
-        dronCsvOrderList.put(pid, dronOrderList);
-    }
-*/
     /**
      * Infinitely reads traffic reports from the queue
      * and print them into the logs
      */
-   /*  @Override
-    public void run()
-    {
+   @Override
+    public void run() {
+   //TODO
        TrafficReport trafficReport;
+        SimpleDateFormat sdfEnd = new SimpleDateFormat("HH:mm");
         try {
-            //TODO check condition for stopping at 8:10
-            while (true) {
-                for ()
-            }
-        } catch (DuplicateDronPIDException e) {
-            LOG.info("Tried to add a dron already running. " + e.getMessage());
-        } catch (NonCSVFileFoundException e) {
-            LOG.info("NonCSVFileFoundException." + e.getMessage());
-        } catch (UnsupportedCSVFileException e) {
-            LOG.info("UnsupportedCSVFileException. " + e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            stopAllDrones();
-
+            sdfEnd.parse("08:10");
+        } catch (ParseException e) {
+            LOG.debug("Error generating end date");
         }
-    }*/
+        //This has been emulated via time = 10*1000
+        Timer timer = new Timer();
+
+     /*   while (true) {
+            /*List<DronOrder> dronOrderList1 =
+                    readCsvDronOrdersFile(dron);
+
+            sendDronOrders(dron.getPid(), dronOrderList1);
+        }
 
 
-/*
-    public void closeClients() {
+        stopAllDrones();*/
+    }
+
+
+
+ /*   public void closeClients() {
         long in1minute = 10*1000;
         Timer timer = new Timer();
         timer.schedule( new TimerTask(){
@@ -155,16 +160,7 @@ public final class Dispatcher {
         },  in1minute );
 
     }
-
-    public void close() throws IOException{
-        String outputLine = p.processInput("shut");
-        out.println(outputLine);
-        out.close();
-        in.close();
-        socket.close();
-    }
-    */
-
+*/
      public Map getDronesList() {
          return dronesList;
      }

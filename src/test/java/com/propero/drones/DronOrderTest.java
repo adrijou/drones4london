@@ -34,14 +34,25 @@ public class DronOrderTest {
 
         String ts = "2016-03-02 20:01:10.0";
 
-        coordinates.setTime(Timestamp.valueOf(ts));
+        coordinates.setTime(Timestamp.valueOf(ts).getTime());
 
         assertEquals(123, coordinates.getPid());
         assertThat(51.476105, closeTo(coordinates.getLatitude(), DELTA));
         assertThat(-0.100224, closeTo(coordinates.getLongitude(), DELTA));
 
-        assertEquals(Timestamp.valueOf(ts), coordinates.getTime());
-        assertEquals(ts, coordinates.getTime().toString());
+        assertEquals(Timestamp.valueOf(ts).getTime(), coordinates.getTime());
+    }
+
+    @Test
+    public void dronOrderCustomTimeToStartWorking() throws ParseException {
+        int pid = 123;
+        DronOrder coordinates = new DronOrder(pid);
+
+
+        String ts = "2016-03-02 20:01:10.0";
+        coordinates.setTime(Timestamp.valueOf(ts).getTime());
+
+        assertEquals(Timestamp.valueOf(ts).getTime(), coordinates.getTime());
     }
 
 }

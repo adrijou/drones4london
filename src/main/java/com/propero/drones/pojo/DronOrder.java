@@ -1,8 +1,6 @@
 package com.propero.drones.pojo;
 
 
-import java.sql.Timestamp;
-
 /**
  * Created by IntelliJ IDEA.<br/>
  * User: adrian.salas<br/>
@@ -11,7 +9,7 @@ import java.sql.Timestamp;
 public final class DronOrder extends Coordinates {
 
     private int pid;
-    private Timestamp time;
+    private long time;
 
     public DronOrder(final int pid) {
         this.pid = pid;
@@ -21,11 +19,11 @@ public final class DronOrder extends Coordinates {
         return pid;
     }
 
-    public Timestamp getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(final Timestamp time) {
+    public void setTime(final long time) {
         this.time = time;
     }
 

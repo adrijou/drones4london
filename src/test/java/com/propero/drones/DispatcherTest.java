@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -27,20 +28,26 @@ public class DispatcherTest {
     private static final double DELTA = 1e-15;
 
     @Test
-    public void dispatcherClassExists() {
+    public void dispatcherClassExists() throws ParseException {
         Dispatcher dispatcher = new Dispatcher();
         assertNotNull(dispatcher);
     }
 
 
     @Test
-    public void dispatcherHasListDrones() throws DuplicateDronPIDException {
+    public void dispatcherHasListDrones() throws DuplicateDronPIDException,
+            ParseException {
         Dispatcher dispatcher = new Dispatcher();
         int pid1 = 123;
         int pid2= 321;
 
-        Dron dronA = new Dron(pid1);
-        Dron dronB = new Dron(pid2);
+
+        String str = "2011-03-22 07:45:00";
+        Timestamp dateStart = Timestamp.valueOf(str);
+
+
+        Dron dronA = new Dron(pid1, dispatcher);
+        Dron dronB = new Dron(pid2, dispatcher);
 
         dispatcher.addDron(dronA);
         dispatcher.addDron(dronB);
@@ -50,19 +57,25 @@ public class DispatcherTest {
 
         assertEquals(2, dispatcher.getDronesList().size());
         assertTrue(dispatcher.getDronesList().get(123) instanceof Thread);
-        TestCase.assertEquals("123", ((Thread) dispatcher.getDronesList().get(123)).getName());
+        TestCase.assertEquals("123",
+                ((Thread) dispatcher.getDronesList().get(123)).getName());
         assertTrue(dispatcher.getDronesList().get(321) instanceof Thread);
-        TestCase.assertEquals("321", ((Thread)dispatcher.getDronesList().get(321)).getName());
+        TestCase.assertEquals("321",
+                ((Thread)dispatcher.getDronesList().get(321)).getName());
 
     }
 
     @Test(expected = DuplicateDronPIDException.class)
     public void dispatcherNoTwoDronesSamePid()
-            throws DuplicateDronPIDException {
+            throws DuplicateDronPIDException, ParseException {
         Dispatcher dispatcher = new Dispatcher();
         int pid1 = 123;
 
-        Dron dronA = new Dron(pid1);
+        String str = "2011-03-22 07:45:00";
+        Timestamp dateStart = Timestamp.valueOf(str);
+
+
+        Dron dronA = new Dron(pid1, dispatcher);
 
         dispatcher.addDron(dronA);
         dispatcher.addDron(dronA);
@@ -71,11 +84,12 @@ public class DispatcherTest {
 
     @Test
     public void dispatcherReadCsvDronesFromPath()
-            throws NonCSVFileFoundException, UnsupportedCSVFileException {
+            throws NonCSVFileFoundException, UnsupportedCSVFileException,
+            ParseException {
         Dispatcher dispatcher = new Dispatcher();
         int pid1 = 123;
 
-        Dron dronA = new Dron(pid1);
+        Dron dronA = new Dron(pid1, dispatcher);
 
         List<DronOrder> dronOrderList = dispatcher.readCsvDronOrdersFile(dronA);
 
@@ -83,22 +97,26 @@ public class DispatcherTest {
         Assert.assertEquals(123, dronOrderList.get(0).getPid());
         Assert.assertEquals(123, dronOrderList.get(1).getPid());
         assertThat(51.476105,
-                closeTo(dronOrderList.get(0).getLongitude(), DELTA));
-        assertThat(-0.100224,
                 closeTo(dronOrderList.get(0).getLatitude(), DELTA));
-        Assert.assertEquals(Timestamp.valueOf("2011-03-22 07:55:26"),
+        assertThat(-0.100224,
+                closeTo(dronOrderList.get(0).getLongitude(), DELTA));
+        Assert.assertEquals(Timestamp.valueOf("2011-03-22 07:55:26.0").getTime(),
                 dronOrderList.get(0).getTime());
     }
 
     @Test
-    public void deleteDronFromList() throws DuplicateDronPIDException {
+    public void deleteDronFromList() throws DuplicateDronPIDException,
+            ParseException {
 
         Dispatcher dispatcher = new Dispatcher();
         int pid1 = 123;
         int pid2 = 321;
 
-        Dron dronA = new Dron(pid1);
-        Dron dronB = new Dron(pid2);
+        String str = "2011-03-22 07:45:00";
+        Timestamp dateStart = Timestamp.valueOf(str);
+
+        Dron dronA = new Dron(pid1, dispatcher);
+        Dron dronB = new Dron(pid2, dispatcher);
         dispatcher.addDron(dronA);
         dispatcher.addDron(dronB);
 
@@ -114,14 +132,17 @@ public class DispatcherTest {
 
     @Test
     public void stopAllDronesThreadInstances()
-            throws DuplicateDronPIDException {
+            throws DuplicateDronPIDException, ParseException {
 
         Dispatcher dispatcher = new Dispatcher();
         int pid1 = 123;
         int pid2 = 321;
 
-        Dron dronA = new Dron(pid1);
-        Dron dronB = new Dron(pid2);
+        String str = "2011-03-22 07:45:00";
+        Timestamp dateStart = Timestamp.valueOf(str);
+
+        Dron dronA = new Dron(pid1, dispatcher);
+        Dron dronB = new Dron(pid2, dispatcher);
         dispatcher.addDron(dronA);
         dispatcher.addDron(dronB);
 

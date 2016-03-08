@@ -23,9 +23,11 @@ public class TrafficReportTest {
     public void trafficReportAsPojo() {
 
         int pid = 123;
-        Timestamp time =Timestamp.valueOf("2016-03-03 23:30:10.0");
+        long time =Timestamp.valueOf("2016-03-03 23:30:10.0").getTime();
+        double speed = 123.123;
+        String tubeSt = "Victoria";
 
-        TrafficReport trafficReport = new TrafficReport(pid, time);
+        TrafficReport trafficReport = new TrafficReport(pid, tubeSt,time, speed);
 
         trafficReport.setSpeed(12.50);
         trafficReport.setTrafficConditions(
@@ -33,7 +35,7 @@ public class TrafficReportTest {
 
         assertEquals(123, trafficReport.getDronID());
         assertThat(12.50, closeTo(trafficReport.getSpeed(), DELTA));
-        assertEquals(time, trafficReport.getTimeStamp());
+        assertEquals(time, trafficReport.getTime());
         assertEquals(TrafficReport.TrafficConditions.MODERATE,
                 trafficReport.getTrafficConditions());
     }
@@ -41,9 +43,11 @@ public class TrafficReportTest {
     @Test
     public void trafficReportRandom() {
         int pid = 123;
+        double speed = 123.123;
+        String tubeSt = "Victoria";
         Timestamp time =Timestamp.valueOf("2016-03-03 23:30:10.0");
 
-        TrafficReport tr = new TrafficReport(pid, time);
+        TrafficReport tr = new TrafficReport(pid, tubeSt, time.getTime(), speed);
 
         assertNotNull(tr.getTrafficConditions());
 

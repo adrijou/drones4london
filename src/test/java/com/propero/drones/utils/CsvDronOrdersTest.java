@@ -47,10 +47,10 @@ public class CsvDronOrdersTest {
         assertEquals(123, listCoordinatesTest.get(0).getPid());
         assertEquals(123, listCoordinatesTest.get(1).getPid());
         assertThat(51.476105,
-                closeTo(listCoordinatesTest.get(0).getLongitude(), DELTA));
-        assertThat(-0.100224,
                 closeTo(listCoordinatesTest.get(0).getLatitude(), DELTA));
-        assertEquals(Timestamp.valueOf("2011-03-22 07:55:26"),
+        assertThat(-0.100224,
+                closeTo(listCoordinatesTest.get(0).getLongitude(), DELTA));
+        assertEquals(Timestamp.valueOf("2011-03-22 07:55:26").getTime(),
                 listCoordinatesTest.get(0).getTime());
     }
 
