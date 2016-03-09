@@ -38,13 +38,16 @@ mvn archetype:generate -DgroupId=com.propero.drones -DartifactId=drones4london -
 Unit testing: using JUnit 4.
 The approach followed has been “test-driven”.
 
-## Functional/Integration test:
+## Functional/Integration test using BDD and Cucumber framework
 As a possible extension of the program, we could integrate some Cucumber tests as a BDD (Behavior-driven development).
 If behaviour-driven-development or acceptance test driven development is the goal,
 the Cucumber framework eases our life when we need to  establish a link between the non-technical,
 textual description for a new feature and the tests that prove that the application fulfils these requirements.
 This is why I considered as a very useful to include in any new Testing Framework: get users, developers,
 testers, product-owners etc.. together :)
+As you could see in TestAppDrones4London, all methods have empty body (TODO). The purpose of include BDD is about the flexibility and easy integration
+of the Cucumber framework. (for more info: https://cucumber.io/)
+
 
 
 # Extensibility
