@@ -10,11 +10,11 @@ all drones threads are stopped.
 Assuming that both drones will start from a central point of Hyde Park. Also the starting time for the app will be at 07:45am
 
 ## Source code
-The project is published on gitHub:
-	>mkdir /path/to/your/project
-	>cd /path/to/your/project
-	>git init
-	>git remote add origin https://github.com/asalgav/drones4london.git
+The project is published on gitHub: <br />
+	> mkdir /path/to/your/project <br />
+	> cd /path/to/your/project <br />
+	> git init <br />
+	> git remote add origin https://github.com/asalgav/drones4london.git <br />
 
 ## Tools used :
 1. Maven 3.1.1
@@ -29,11 +29,11 @@ mvn archetype:generate -DgroupId=com.propero.drones -DartifactId=drones4london -
 3. Define OO classes by TDD
 
 ## Installing the project
- ```mvn clean package.```
+ ```mvn clean package```
 ## Running the project
 ```java -jar target/drones4london.jar```
 
-*Notice:* logs are configured by default to show only traffic reports. Changing log4j.rootLogger=DEBUG, stdout in log4j.properties full logs are showed.
+**Notice:** logs are configured by default to show only traffic reports. Changing log4j.rootLogger=DEBUG, stdout in log4j.properties full logs are showed.
 
 
 ## Testing
@@ -64,7 +64,7 @@ a topic queue where multiples Drones could pick their messages (based its pid) f
 
 ## Final notes:
 * log4j has been configured in INFO mode to expose only the Traffic report details.
-However, by changing log4J line log4j.rootLogger=DEBUG, we will get the full debug logs.
+However, by changing log4J line ```log4j.rootLogger=DEBUG```, we will get the full debug logs.
 Also, the code has been exposed to multiples comments, sometimes overburdening the code but, this is considered as a didactic exercise.
 
 
