@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.*;
@@ -104,8 +105,8 @@ public class DronTest {
     }
 
     @Test
-    public void moveToNextCoordinateDron() throws ParseException {
-        //TODO
+    public void moveToNextCoordinateDron() throws ParseException,
+                                                InterruptedException {
         Dispatcher dispatcherServer = new Dispatcher();
         Dron dron = new Dron(123, dispatcherServer);
 
@@ -113,10 +114,12 @@ public class DronTest {
         DronOrder startPoint = new DronOrder(dron.getPid());
         startPoint.setLatitude(51.484833);
         startPoint.setLongitude(-0.126416);
+        startPoint.setTime(Timestamp.valueOf("2011-03-22 07:48:29").getTime());
         //Victoria
         DronOrder endPoint = new DronOrder(dron.getPid());
         endPoint.setLatitude(51.496424);
         endPoint.setLongitude(-0.143921);
+        endPoint.setTime(Timestamp.valueOf("2011-03-22 07:49:29").getTime());
 
         double distance = dron.moveToNextCoordinate(endPoint);
 
@@ -124,8 +127,5 @@ public class DronTest {
         assertThat(51.496424, closeTo(dron.getCurrentPoint().getLatitude(), DELTA));
         assertThat(-0.143921, closeTo(dron.getCurrentPoint().getLongitude(), DELTA));
     }
-
-
-
 
 }

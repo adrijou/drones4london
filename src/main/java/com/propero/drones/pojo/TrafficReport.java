@@ -52,7 +52,7 @@ public class TrafficReport {
     }
 
     public void setTrafficConditions(
-            final TrafficConditions trafficConditions) {
+            final    TrafficConditions trafficConditions) {
         this.trafficConditions = trafficConditions;
     }
 

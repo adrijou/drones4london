@@ -10,35 +10,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
-import java.util.Timer;
 
 /**
  * Created by IntelliJ IDEA.<br/>
  * User: adrian.salas<br/>
  * Date: 03/03/16<br/>
  */
-public final class Dispatcher extends Thread {
+public final class Dispatcher {
 
     private static final Logger LOG
             = LoggerFactory.getLogger(Dispatcher.class);
 
     private Map dronCsvOrderList;
 
+    private Map<Integer, List<DronOrder>> ordersInList
+            = new HashMap<Integer, List<DronOrder>>();
+
     private Map dronesList = new HashMap();
-    private SimpleDateFormat sdf;
 
     public Dispatcher() throws ParseException {
         dronCsvOrderList = new HashMap<Integer, List<DronOrder>>();
-        //Starting time
-        sdf = new java.text.SimpleDateFormat("HH:mm");
-        sdf.parse("07:45");
-
     }
 
     public void addDron(final Dron dron)
@@ -51,14 +47,27 @@ public final class Dispatcher extends Thread {
         dronesList.put(dron.getPid(), dron);
     }
 
-    public List<DronOrder> readCsvDronOrdersFile(final Dron dron)
+    /**
+     *
+     * @param dronPid
+     * @throws NonCSVFileFoundException
+     * @throws UnsupportedCSVFileException
+     */
+    public void initiliceListOrders(final int dronPid)
+            throws NonCSVFileFoundException, UnsupportedCSVFileException {
+
+        List<DronOrder> dronOrderList1 =
+                readCsvDronOrdersFile(dronPid);
+        ordersInList.put(dronPid, (List<DronOrder>) dronOrderList1);
+    }
+
+    public List<DronOrder> readCsvDronOrdersFile(final int dronPid)
             throws NonCSVFileFoundException, UnsupportedCSVFileException {
 
         List<DronOrder> dronesOrdersList = new ArrayList<>();
 
         dronesOrdersList.addAll(
-                CsvDronOrders.newInstance().getDronCoordinatesFromCSV(
-                            dron.getPid()));
+                CsvDronOrders.newInstance().getDronCoordinatesFromCSV(dronPid));
 
         return dronesOrdersList;
     }
@@ -73,22 +82,6 @@ public final class Dispatcher extends Thread {
         LOG.info("Printing traffic report from dron "
                 + trafficReport.getDronID());
         LOG.info("Traffic report: " + trafficReport.toString());
-    }
-
-    /**
-     * Uses per each dron defined by pid, the list of orders to be sent. As
-     * dron.ordersQueue is a limited queue (10), will need to wait till there's
-     * availability on memory for storing next dronOrder.
-     * @param pid
-     * @param dronOrderList
-     */
-    public void sendDronOrders(final int pid,
-                                    final List<DronOrder> dronOrderList)
-            throws InterruptedException {
-        for (DronOrder dronOrder : dronOrderList) {
-            ((Dron) dronesList.get(pid)).getDronOrdersQueue()
-                            .enqueue(dronOrder);
-        }
     }
 
     /**
@@ -112,58 +105,9 @@ public final class Dispatcher extends Thread {
         dronesList.clear();
     }
 
-    /**
-     * Infinitely reads traffic reports from the queue
-     * and print them into the logs
-     */
-   @Override
-    public void run() {
-   //TODO
-       TrafficReport trafficReport;
-        SimpleDateFormat sdfEnd = new SimpleDateFormat("HH:mm");
-        try {
-            sdfEnd.parse("08:10");
-        } catch (ParseException e) {
-            LOG.debug("Error generating end date");
-        }
-        //This has been emulated via time = 10*1000
-        Timer timer = new Timer();
-
-     /*   while (true) {
-            /*List<DronOrder> dronOrderList1 =
-                    readCsvDronOrdersFile(dron);
-
-            sendDronOrders(dron.getPid(), dronOrderList1);
-        }
-
-
-        stopAllDrones();*/
+    public Map getDronesList() {
+        return dronesList;
     }
-
-
-
- /*   public void closeClients() {
-        long in1minute = 10*1000;
-        Timer timer = new Timer();
-        timer.schedule( new TimerTask(){
-            public void run() {
-                for(int i=0;i<startedThreads.size();i++){
-                    try {
-                        startedThreads.get(i).close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                listening=false;
-            }
-        },  in1minute );
-
-    }
-*/
-     public Map getDronesList() {
-         return dronesList;
-     }
 
     public void setDronesList(final Map dronesList) {
         this.dronesList = dronesList;
@@ -177,5 +121,13 @@ public final class Dispatcher extends Thread {
         this.dronCsvOrderList = dronCsvOrderList;
     }
 
+    public Map<Integer, List<DronOrder>> getOrdersInList() {
+        return ordersInList;
+    }
+
+    public void setOrdersInList(final Map<Integer, List<DronOrder>>
+                                         ordersInList) {
+        this.ordersInList = ordersInList;
+    }
 
 }

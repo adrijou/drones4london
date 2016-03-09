@@ -16,22 +16,17 @@
     <jodatime.version>2.5</jodatime.version>
     <junit.version>4.11</junit.version>
     <log4j.version>1.2.17</log4j.version>
-    <logback.version>1.0.0</logback.version>
-    <slf4j-api.version>1.7.5</slf4j-api.version>
-    <slf4j.version>1.7.5</slf4j.version>
+    <slf4j-api.version>1.7.15</slf4j-api.version>
+    <slf4j.version>1.7.15</slf4j.version>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>${log4j.version}</version>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -42,6 +37,13 @@
       <artifactId>slf4j-log4j12</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <dependency>
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
@@ -99,17 +101,36 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
-            <!-- DO NOT include log4j.properties file in your Jar -->
-          <excludes>
-            <exclude>**/log4j.properties</exclude>
-          </excludes>
           <archive>
             <manifest>
+              <addClasspath>true</addClasspath>
               <!-- Jar file entry point -->
               <mainClass>com.propero.drones.AppDrons4London</mainClass>
+              <classpathPrefix>dependency-jars/</classpathPrefix>
             </manifest>
           </archive>
         </configuration>
+      </plugin>
+
+      <!-- Copy project dependency -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.5.1</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <!-- exclude junit, we need runtime dependency only -->
+              <includeScope>runtime</includeScope>
+              <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- Checkstyle -->

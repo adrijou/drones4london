@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,14 +28,17 @@ public final class Dron extends Thread {
     private static final Logger LOG
             = LoggerFactory.getLogger(Dron.class);
 
+    // Must be volatile: will never be cached thread-locally:
+    // all reads and writes will go straight to "main memory";
+    // Access to the variable is in a synchronized block,synchronized on itself.
+    private volatile boolean shutdown = false;
+
     private int pid;
     private BlockingQueue dronOrdersQueue =
             new BlockingQueue(Constants.MEM_SIZE);
     private static List<TubeStation> tubeStationList;
-    private TubeStation tubeStation = new TubeStation();
     private static final String CSV_FILE_TUBE = "tube.csv";
     private DronOrder currentPoint;
-    private TrafficReport trafficReport;
     private Dispatcher serverDispatcher;
 
     static {
@@ -46,7 +51,17 @@ public final class Dron extends Thread {
         } catch (UnsupportedCSVFileException e) {
             LOG.debug("UnsupportedCSVFileException. " + e.getMessage());
         }
+    }
 
+    public static final Date TIME_TO_START;
+    //We will only create one instance of the starting time
+    static {
+        Calendar calendar = Calendar.getInstance();
+        //The app will start running at 7:45am.
+        calendar.set(Calendar.HOUR_OF_DAY, Constants.SEVEN);
+        calendar.set(Calendar.MINUTE, Constants.FORTY_FIVE);
+        calendar.set(Calendar.SECOND, 0);
+        TIME_TO_START = calendar.getTime();
     }
 
     /**
@@ -70,7 +85,7 @@ public final class Dron extends Thread {
 
 
     /**
-     *
+     * //TODO this can be considered as an extension of the program
      * @param pid
      * @param dispatcher
      * @param timeStart: custom start working time for a Dron
@@ -93,30 +108,51 @@ public final class Dron extends Thread {
     public void run() {
         DronOrder dronOrder;
         Double distance, speed;
+        TubeStation tubeStation;
+        TrafficReport trafficReport;
+        int orderCounter = 0;
         try {
-            while (!isInterrupted()) {
-                LOG.debug("Getting the following order in the queue");
-                dronOrder = (DronOrder) dronOrdersQueue.dequeue();
+            while (!isInterrupted() && !shutdown) {
+                LOG.debug("Getting the next order from the queue to be "
+                        + "handled by " + Thread.currentThread().getName());
+                if (serverDispatcher.getOrdersInList().get(pid) != null
+                  && serverDispatcher.getOrdersInList()
+                                    .get(pid).size() != 0) {
 
-                LOG.debug("Dron order pid got as " + dronOrder.getPid());
-                distance = moveToNextCoordinate(dronOrder);
+                    dronOrdersQueue.enqueue(
+                            serverDispatcher.getOrdersInList().get(pid).get(0));
+                    //Deleting order processed
+                    serverDispatcher.getOrdersInList().get(pid).remove(0);
 
-                tubeStation = findTubeStationInArea((dronOrder));
-                if (tubeStation != null) {
-                    LOG.debug("Found tube station: "
-                            + tubeStation.getTubeName());
-                    speed = distance
-                            / Math.abs(currentPoint.getTime()
+                    LOG.info("Processing order number: " + (orderCounter++)
+                            + " for Dron: " + pid);
+
+                    dronOrder = (DronOrder) dronOrdersQueue.dequeue();
+
+                    LOG.debug("Dron order pid got as " + dronOrder.getPid());
+                    distance = moveToNextCoordinate(dronOrder);
+
+                    tubeStation = findTubeStationInArea((dronOrder));
+                    if (tubeStation != null) {
+                        LOG.debug("Found tube station: "
+                                + tubeStation.getTubeName());
+                        speed = distance
+                                / Math.abs(currentPoint.getTime()
                                 - dronOrder.getTime());
 
-                    trafficReport = new TrafficReport(
-                            dronOrder.getPid(), tubeStation.getTubeName(),
-                            dronOrder.getTime(), speed);
-                    LOG.debug("Sending to dispatcher server the traffic report"
-                                    + " for dron " + trafficReport.getDronID());
-                    serverDispatcher
-                            .printTrafficReportFromDron(trafficReport);
+                        trafficReport = new TrafficReport(
+                                dronOrder.getPid(), tubeStation.getTubeName(),
+                                dronOrder.getTime(), speed);
+                        LOG.debug("Sending to dispatcher the traffic report"
+                                + " for dron " + trafficReport.getDronID());
+                        serverDispatcher
+                                .printTrafficReportFromDron(trafficReport);
+                    }
                 }
+            }
+
+            if (shutdown) {
+                LOG.info("Detected SHUTDOWN signal. Stopping dron: " + pid);
             }
 
         } catch (NonCSVFileFoundException e) {
@@ -133,6 +169,10 @@ public final class Dron extends Thread {
         serverDispatcher.deleteDron(pid);
     }
 
+    public void requestStop() {
+        shutdown = true;
+    }
+
     public TubeStation findTubeStationInArea(final DronOrder coordinates)
             throws NonCSVFileFoundException, UnsupportedCSVFileException {
 
@@ -145,7 +185,7 @@ public final class Dron extends Thread {
                     coordinates.getLatitude(), coordinates.getLongitude())) {
 
                 LOG.debug("Got tube station " + tubeStationVar.getTubeName()
-                        + "in the given area");
+                        + " in the given area");
                 return tubeStationVar;
             }
         }
@@ -153,7 +193,8 @@ public final class Dron extends Thread {
         return null;
     }
 
-    public double moveToNextCoordinate(final DronOrder nextCoordinates) {
+    public double moveToNextCoordinate(final DronOrder nextCoordinates)
+            throws InterruptedException {
 
         double lat1 = currentPoint.getLatitude();
         double long1 = currentPoint.getLongitude();
@@ -161,18 +202,31 @@ public final class Dron extends Thread {
         double long2 = nextCoordinates.getLongitude();
 
         double distanceToMove = distance(lat1, long1, lat2, long2);
+
+        // virtual waiting time between both points in fast forward 100K times
+        //TODO include at the end to avoid waiting times.
+        LOG.info("Time next station is: "
+                + new Timestamp(nextCoordinates.getTime()));
+        LOG.info("Sleep the process as a virtual scenario of time "
+                + "spend moving to the next point: "
+                + (nextCoordinates.getTime() - currentPoint.getTime())
+                                                        / Constants.HUNDRED_K
+                + "milliseconds");
+        sleep((nextCoordinates.getTime() - currentPoint.getTime())
+                                                        / Constants.HUNDRED_K);
+
         //Update new coordinates point
         currentPoint.setLatitude(nextCoordinates.getLatitude());
         currentPoint.setLongitude(nextCoordinates.getLongitude());
         LOG.debug("New coordinates point is: (" + currentPoint.getLatitude()
-                + " , " + currentPoint.getLongitude());
+                + " , " + currentPoint.getLongitude() + ")");
 
         return distanceToMove;
     }
 
     /*
      * Calculate distance between two points in latitude and longitude
-     * lat1, lon1 Start point lat2, lon2 End
+     * lat1, lon1 Start point lat2, lon2 En
      * @returns Distance
      * this could be got by using Math library such as:
      * distance = Math.hypot(long2 - long1, lat2 - lat1);

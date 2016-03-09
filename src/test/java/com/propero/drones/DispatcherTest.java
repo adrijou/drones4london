@@ -91,7 +91,7 @@ public class DispatcherTest {
 
         Dron dronA = new Dron(pid1, dispatcher);
 
-        List<DronOrder> dronOrderList = dispatcher.readCsvDronOrdersFile(dronA);
+        List<DronOrder> dronOrderList = dispatcher.readCsvDronOrdersFile(pid1);
 
         Assert.assertEquals(2, dronOrderList.size());
         Assert.assertEquals(123, dronOrderList.get(0).getPid());
